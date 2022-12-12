@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
-import cohesion
+import flake8_cohesion
 
 
 class CohesionChecker(object):
-    name = cohesion.__name__
-    version = cohesion.__version__
+    name = flake8_cohesion.__name__
+    version = flake8_cohesion.__version__
     off_by_default = False
 
-    _code = 'H601'
-    _error_tmpl = 'H601 class has low ({0:.2f}%) cohesion'
+    _code = "H601"
+    _error_tmpl = "H601 class has low ({0:.2f}%) cohesion"
 
     def __init__(self, tree, filename):
         self.tree = tree
@@ -17,20 +17,20 @@ class CohesionChecker(object):
 
     @classmethod
     def add_options(cls, parser):
-        flag = '--cohesion-below'
+        flag = "--cohesion-below"
         kwargs = {
-            'action': 'store',
-            'type': 'float',
-            'default': 50.0,
-            'help': 'only show cohesion results with this percentage or lower',
-            'parse_from_config': 'True',
+            "action": "store",
+            "type": "float",
+            "default": 50.0,
+            "help": "only show cohesion results with this percentage or lower",
+            "parse_from_config": "True",
         }
-        config_opts = getattr(parser, 'config_options', None)
+        config_opts = getattr(parser, "config_options", None)
         if isinstance(config_opts, list):
             # flake8 2.x
-            kwargs.pop('parse_from_config')
+            kwargs.pop("parse_from_config")
             parser.add_option(flag, **kwargs)
-            parser.config_options.append('cohesion-below')
+            parser.config_options.append("cohesion-below")
         else:
             # flake8 3.x
             parser.add_option(flag, **kwargs)
@@ -40,14 +40,14 @@ class CohesionChecker(object):
         cls.cohesion_below = options.cohesion_below
 
     def run(self):
-        file_module = cohesion.module.Module(self.tree)
+        file_module = flake8_cohesion.module.Module(self.tree)
         file_module.filter_below(float(self.cohesion_below))
 
         for class_name in file_module.classes():
             cohesion_percentage = file_module.class_cohesion_percentage(class_name)
             yield (
-                file_module.structure[class_name]['lineno'],
-                file_module.structure[class_name]['col_offset'],
+                file_module.structure[class_name]["lineno"],
+                file_module.structure[class_name]["col_offset"],
                 self._error_tmpl.format(cohesion_percentage),
-                type(self)
+                type(self),
             )

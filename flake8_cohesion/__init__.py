@@ -1,11 +1,9 @@
-from . import filesystem
-from . import module
-from . import parser
+from flake8_cohesion import module
+from flake8_cohesion import parser
 
-__name__ = 'cohesion'
-__version__ = '1.0.0'
+__name__ = "flake8_cohesion"
+__version__ = "0.0.1"
 __all__ = [
-    'filesystem',
-    'module',
-    'parser',
+    "module",
+    "parser",
 ]
