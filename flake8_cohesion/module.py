@@ -5,8 +5,7 @@ from __future__ import division
 import collections
 import operator
 
-from . import parser
-from . import filesystem
+from flake8_cohesion import parser
 
 
 class Module(object):
@@ -29,12 +28,6 @@ class Module(object):
         return self.structure[class_name]["functions"][function_name]["variables"]
 
     @classmethod
-    def from_file(cls, filename):
-        file_contents = filesystem.get_file_contents(filename)
-
-        return cls.from_string(file_contents)
-
-    @classmethod
     def from_string(cls, python_string):
         module_ast_node = parser.get_ast_node_from_string(python_string)
 
@@ -53,20 +46,15 @@ class Module(object):
 
         total_function_variable_count = sum(
             len(function_structure["variables"])
-            for function_structure in
-            self.structure[class_name]["functions"].values()
+            for function_structure in self.structure[class_name]["functions"].values()
         )
 
-        total_class_variable_count = (
-            len(self.structure[class_name]["variables"]) *
-            len(self.structure[class_name]["functions"])
+        total_class_variable_count = len(self.structure[class_name]["variables"]) * len(
+            self.structure[class_name]["functions"]
         )
 
         if total_class_variable_count != 0.0:
-            class_percentage = round((
-                total_function_variable_count /
-                total_class_variable_count
-            ) * 100, 2)
+            class_percentage = round((total_function_variable_count / total_class_variable_count) * 100, 2)
         else:
             class_percentage = 0.0
 
@@ -101,10 +89,7 @@ class Module(object):
 
             class_methods = parser.get_class_methods(module_class)
 
-            class_method_name_to_method = {
-                method.name: method
-                for method in class_methods
-            }
+            class_method_name_to_method = {method.name: method for method in class_methods}
 
             class_method_name_to_variable_names = {
                 method_name: list(parser.get_all_class_variable_names_used_in_method(method))

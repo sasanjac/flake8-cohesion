@@ -14,7 +14,7 @@
     homepage = "https://github.com/sasanjac/flake8-cohesion"
 
   [project.entry-points."flake8.extension"]
-    H60 = "cohesion.flake8_extension:CohesionChecker"
+    H60 = "flake8_cohesion.extension:CohesionChecker"
 
 [build-system]
   build-backend = "pdm.pep517.api"
@@ -134,10 +134,13 @@
   line_length = 120
 
 [tool.commitizen]
-  name          = "cz_conventional_commits"
-  tag_format    = "$version"
-  version       = "0.0.1"
-  version_files = ["pyproject.toml:version"]
+  name = "cz_conventional_commits"
+  tag_format = "$version"
+  version = "0.0.1"
+  version_files = [
+    "flake8_cohesion.__init__.py:__version__",
+    "pyproject.toml:version",
+  ]
 
 [tool.isort]
   combine_as_imports     = true
