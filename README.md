@@ -38,7 +38,7 @@ $ cohesion -h
 OR
 
 ```
-$ git clone https://github.com/mschwager/cohesion.git
+$ git clone https://github.com/sasanjac/flake8-cohesion.git
 $ cd cohesion
 $ PYTHONPATH=lib/ python -m cohesion -h
 ```

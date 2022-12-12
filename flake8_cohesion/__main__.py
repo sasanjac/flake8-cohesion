@@ -5,8 +5,8 @@ from __future__ import print_function
 import argparse
 import json
 
-from . import filesystem
-from . import module
+from flake8_cohesion import filesystem
+from flake8_cohesion import module
 
 
 class ModuleStructureEncoder(json.JSONEncoder):
