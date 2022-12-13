@@ -1,42 +1,19 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import annotations
 
 import ast
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    NameDispatchKey = type[ast.AST]
+
 
 BOUND_METHOD_ARGUMENT_NAME = "self"
 
 
-def get_object_name(obj):
-    """
-    Return the name of a given object
-    """
-    name_dispatch = {
-        ast.Name: "id",
-        ast.Attribute: "attr",
-        ast.Call: "func",
-        ast.FunctionDef: "name",
-        ast.ClassDef: "name",
-        ast.Subscript: "value",
-        ast.arg: "arg",
-    }
-
-    while not isinstance(obj, str):
-        assert type(obj) in name_dispatch
-        obj = getattr(obj, name_dispatch[type(obj)])
-
-    return obj
-
-
-def get_attribute_name_id(attr):
-    """
-    Return the attribute name identifier
-    """
-    return attr.value.id if isinstance(attr.value, ast.Name) else None
-
-
-def is_class_method_bound(method, arg_name=BOUND_METHOD_ARGUMENT_NAME):
-    """
-    Return whether a class method is bound to the class
-    """
+def is_class_method_bound(method: ast.FunctionDef, arg_name: str = BOUND_METHOD_ARGUMENT_NAME) -> bool:
+    """Return whether a class method is bound to the class."""
     if not method.args.args:
         return False
 
@@ -47,89 +24,88 @@ def is_class_method_bound(method, arg_name=BOUND_METHOD_ARGUMENT_NAME):
     return first_arg_name == arg_name
 
 
-def class_method_has_decorator(method, decorator):
-    """
-    Return whether a class method has a specific decorator
-    """
-    return decorator in [get_object_name(d) for d in method.decorator_list]
-
-
-def is_class_method_classmethod(method):
-    """
-    Return whether a class method is a classmethod
-    """
+def is_class_method_classmethod(method: ast.FunctionDef) -> bool:
+    """Return whether a class method is a classmethod."""
     return class_method_has_decorator(method, "classmethod")
 
 
-def is_class_method_staticmethod(method):
-    """
-    Return whether a class method is a staticmethod
-    """
+def is_class_method_staticmethod(method: ast.FunctionDef) -> bool:
+    """Return whether a class method is a staticmethod."""
     return class_method_has_decorator(method, "staticmethod")
 
 
-def get_class_methods(cls):
-    """
-    Return methods associated with a given class
-    """
+def class_method_has_decorator(method: ast.FunctionDef, decorator: str) -> bool:
+    """Return whether a class method has a specific decorator."""
+    return decorator in [get_object_name(d) for d in method.decorator_list]
+
+
+def get_class_methods(cls: ast.ClassDef) -> list[ast.FunctionDef]:
+    """Return methods associated with a given class."""
     return [node for node in cls.body if isinstance(node, ast.FunctionDef)]
 
 
-def get_class_variables(cls):
-    """
-    Return class variables associated with a given class
-    """
-    return [target for node in cls.body if isinstance(node, ast.Assign) for target in node.targets]
+def get_all_class_variable_names_used_in_method(method: ast.FunctionDef) -> set[str]:
+    """Return the names of all instance variables associated with a given method."""
+    return {get_object_name(variable) for variable in get_instance_variables(method)}
 
 
-def get_instance_variables(node, bound_name_classifier=BOUND_METHOD_ARGUMENT_NAME):
-    """
-    Return instance variables used in an AST node
-    """
+def get_all_class_variable_names(cls: ast.ClassDef) -> set[str]:
+    """Return the names of all class and instance variables associated with a given class."""
+    return {get_object_name(variable) for variable in get_all_class_variables(cls)}
+
+
+def get_all_class_variables(cls: ast.ClassDef) -> list[ast.expr | ast.Attribute]:
+    """Return class and instance variables associated with a given class."""
+    return get_class_variables(cls) + get_instance_variables(cls)
+
+
+def get_instance_variables(
+    node: ast.AST,
+    bound_name_classifier: str = BOUND_METHOD_ARGUMENT_NAME,
+) -> list[ast.Attribute]:
+    """Return instance variables used in an AST node."""
     node_attributes = [
         child
         for child in ast.walk(node)
         if isinstance(child, ast.Attribute) and get_attribute_name_id(child) == bound_name_classifier
     ]
     node_function_call_names = [get_object_name(child) for child in ast.walk(node) if isinstance(child, ast.Call)]
-    node_instance_variables = [
-        attribute for attribute in node_attributes if get_object_name(attribute) not in node_function_call_names
-    ]
-    return node_instance_variables
+    return [attribute for attribute in node_attributes if get_object_name(attribute) not in node_function_call_names]
 
 
-def get_all_class_variable_names_used_in_method(method):
-    """
-    Return the names of all instance variables associated with a
-    given method
-    """
-    return {get_object_name(variable) for variable in get_instance_variables(method)}
+def get_attribute_name_id(attr: ast.Attribute) -> str | None:
+    """Return the attribute name identifier."""
+    return attr.value.id if isinstance(attr.value, ast.Name) else None
 
 
-def get_all_class_variables(cls):
-    """
-    Return class and instance variables associated with a given class
-    """
-    return get_class_variables(cls) + get_instance_variables(cls)
+def get_class_variables(cls: ast.ClassDef) -> list[ast.expr]:
+    """Return class variables associated with a given class."""
+    return [target for node in cls.body if isinstance(node, ast.Assign) for target in node.targets]
 
 
-def get_all_class_variable_names(cls):
-    """
-    Return the names of all class and instance variables associated with a
-    given class
-    """
-    return {get_object_name(variable) for variable in get_all_class_variables(cls)}
+def get_object_name(obj: ast.AST) -> str:
+    """Return the name of a given object."""
+    name_dispatch: dict[NameDispatchKey, str] = {
+        ast.Name: "id",
+        ast.Attribute: "attr",
+        ast.Call: "func",
+        ast.FunctionDef: "name",
+        ast.ClassDef: "name",
+        ast.Subscript: "value",
+        ast.arg: "arg",
+    }
+
+    while not isinstance(obj, str):
+        obj = getattr(obj, name_dispatch[type(obj)])
+
+    return obj
 
 
-def get_module_classes(node):
-    """
-    Return classes associated with a given module
-    """
+def get_module_classes(node: ast.AST) -> list[ast.ClassDef]:
+    """Return classes associated with a given module."""
     return [child for child in ast.walk(node) if isinstance(child, ast.ClassDef)]
 
 
-def get_ast_node_from_string(string):
-    """
-    Return an AST node from a string
-    """
+def get_ast_node_from_string(string: str) -> ast.AST:
+    """Return an AST node from a string."""
     return ast.parse(string)

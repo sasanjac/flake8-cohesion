@@ -1,24 +1,22 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import ast
 import collections
 import textwrap
-import unittest
+
+import pytest
 
 from flake8_cohesion import parser
 
 
-class TestParser(unittest.TestCase):
-    def assertEmpty(self, iterable):
-        self.assertEqual(len(iterable), 0)
-
+class TestParser:
     def assertCountEqual(self, first, second):
         """
         Test whether two sequences contain the same elements.
 
         This exists in Python 3, but not Python 2.
         """
-        self.assertEqual(collections.Counter(list(first)), collections.Counter(list(second)))
+        assert collections.Counter(list(first)) == collections.Counter(list(second))
 
     def test_valid_syntax(self):
         python_string = textwrap.dedent(
@@ -30,7 +28,7 @@ class TestParser(unittest.TestCase):
         result = parser.get_ast_node_from_string(python_string)
         expected = ast.Module
 
-        self.assertIsInstance(result, expected)
+        assert isinstance(result, expected)
 
     def test_invalid_syntax(self):
         python_string = textwrap.dedent(
@@ -39,7 +37,7 @@ class TestParser(unittest.TestCase):
         """
         )
 
-        with self.assertRaises(SyntaxError):
+        with pytest.raises(SyntaxError):
             parser.get_ast_node_from_string(python_string)
 
     def test_get_module_classes_empty(self):
@@ -53,12 +51,12 @@ class TestParser(unittest.TestCase):
         node = parser.get_ast_node_from_string(python_string)
         result = parser.get_module_classes(node)
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_get_module_classes_single(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             pass
         """
         )
@@ -73,9 +71,9 @@ class TestParser(unittest.TestCase):
     def test_get_module_classes_multiple(self):
         python_string = textwrap.dedent(
             """
-        class Cls1(object):
+        class Cls1:
             pass
-        class Cls2(object):
+        class Cls2:
             pass
         """
         )
@@ -90,7 +88,7 @@ class TestParser(unittest.TestCase):
     def test_get_class_methods_empty(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             pass
         """
         )
@@ -98,12 +96,12 @@ class TestParser(unittest.TestCase):
         node = parser.get_ast_node_from_string(python_string)
         result = [method for cls in parser.get_module_classes(node) for method in parser.get_class_methods(cls)]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_get_class_methods_single(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func1(self, arg1):
                 pass
         """
@@ -119,12 +117,12 @@ class TestParser(unittest.TestCase):
     def test_get_class_methods_multiple(self):
         python_string = textwrap.dedent(
             """
-        class Cls1(object):
+        class Cls1:
             def func1(self, arg1):
                 pass
             def func2(self, arg1):
                 pass
-        class Cls2(object):
+        class Cls2:
             def func3(self, arg1):
                 pass
         """
@@ -140,7 +138,7 @@ class TestParser(unittest.TestCase):
     def test_get_class_methods_avoid_nested(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func1(self, arg1):
                 def func2(arg2):
                     pass
@@ -158,7 +156,7 @@ class TestParser(unittest.TestCase):
     def test_get_class_methods_avoid_lambda(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func1(self, arg1):
                 func2 = lambda arg: arg
                 pass
@@ -175,7 +173,7 @@ class TestParser(unittest.TestCase):
     def test_bound_method_is_bound(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self, arg1):
                 pass
         """
@@ -196,7 +194,7 @@ class TestParser(unittest.TestCase):
     def test_is_class_method_staticmethod_is_staticmethod(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @staticmethod
             def func(self, arg1):
                 pass
@@ -218,7 +216,7 @@ class TestParser(unittest.TestCase):
     def test_is_class_method_staticmethod_not_decorated(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self, arg1):
                 pass
         """
@@ -233,12 +231,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_is_class_method_classmethod_other_decorator(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @other_decorator
             def func(self, arg1):
                 pass
@@ -254,12 +252,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_is_class_method_classmethod_other_decorator_with_arguments(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @other_decorator("argument")
             def func(self, arg1):
                 pass
@@ -275,12 +273,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_is_class_method_classmethod_is_classmethod(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @classmethod
             def func(self, arg1):
                 pass
@@ -302,7 +300,7 @@ class TestParser(unittest.TestCase):
     def test_is_class_method_classmethod_not_decorated(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self, arg1):
                 pass
         """
@@ -317,12 +315,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_is_class_method_staticmethod_other_decorator(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @other_decorator
             def func(self, arg1):
                 pass
@@ -338,12 +336,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_is_class_method_staticmethod_other_decorator_with_arguments(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @other_decorator("argument")
             def func(self, arg1):
                 pass
@@ -359,12 +357,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_bound_method_non_default_name(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(this, arg1):
                 pass
         """
@@ -385,7 +383,7 @@ class TestParser(unittest.TestCase):
     def test_bound_method_static(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @staticmethod
             def func(arg1):
                 pass
@@ -401,12 +399,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_bound_method_static_no_arguments(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @staticmethod
             def func():
                 pass
@@ -422,12 +420,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_bound_method_unbound(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(arg1):
                 pass
         """
@@ -442,12 +440,12 @@ class TestParser(unittest.TestCase):
         ]
         result = [method.name for method in methods]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_get_instance_variables_from_class_single(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def __init__(self):
                 self.attr = 5
         """
@@ -463,7 +461,7 @@ class TestParser(unittest.TestCase):
     def test_get_instance_variables_from_class_multiple(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def __init__(self):
                 self.attr1 = 5
                 self.attr2 = 6
@@ -480,7 +478,7 @@ class TestParser(unittest.TestCase):
     def test_get_instance_variables_from_class_multiple_same_line(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def __init__(self):
                 self.attr1 = self.attr2 = 5
         """
@@ -496,7 +494,7 @@ class TestParser(unittest.TestCase):
     def test_get_instance_variables_from_class_avoid_class_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr = 5
         """
         )
@@ -505,12 +503,12 @@ class TestParser(unittest.TestCase):
         instance_variables = parser.get_instance_variables(node)
         result = [instance_variable.attr for instance_variable in instance_variables]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_get_class_variables_from_class_single(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr = 5
         """
         )
@@ -526,7 +524,7 @@ class TestParser(unittest.TestCase):
     def test_get_class_variables_from_class_multiple_targets(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr1 = attr2 = 5
         """
         )
@@ -542,7 +540,7 @@ class TestParser(unittest.TestCase):
     def test_get_class_variables_from_class_avoid_instance_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def __init__(self):
                 self.attr = 5
         """
@@ -553,12 +551,12 @@ class TestParser(unittest.TestCase):
         class_variables = [class_variable for cls in classes for class_variable in parser.get_class_variables(cls)]
         result = [class_variable.id for class_variable in class_variables]
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_get_all_class_variable_names_both_types(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr1 = 5
             def __init__(self):
                 self.attr2 = 6
@@ -575,7 +573,7 @@ class TestParser(unittest.TestCase):
     def test_get_all_class_variable_names_just_instance(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def __init__(self):
                 self.attr = 6
         """
@@ -591,7 +589,7 @@ class TestParser(unittest.TestCase):
     def test_get_all_class_variable_names_just_class(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr = 6
             def __init__(self):
                 pass
@@ -608,7 +606,7 @@ class TestParser(unittest.TestCase):
     def test_get_all_class_variable_names_ensure_no_method_names(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr = 6
             def func(self):
                 pass
@@ -626,7 +624,7 @@ class TestParser(unittest.TestCase):
     def test_get_all_class_variable_names_used_in_method(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             attr1 = 5
             def func(self):
                 self.attr2 = 6
@@ -645,7 +643,7 @@ class TestParser(unittest.TestCase):
     def test_ensure_method_call_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func1(self):
                 pass
             def func2(self):
@@ -668,7 +666,7 @@ class TestParser(unittest.TestCase):
     def test_ensure_decorator_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             @library.decorator
             def func(self):
                 self.attr1 = 5
@@ -688,7 +686,7 @@ class TestParser(unittest.TestCase):
     def test_ensure_unbound_attribute_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self):
                 self.attr1 = 5
                 otherclass.attr2 = 6
@@ -704,7 +702,3 @@ class TestParser(unittest.TestCase):
         expected = ["attr1"]
 
         self.assertCountEqual(result, expected)
-
-
-if __name__ == "__main__":
-    unittest.main()

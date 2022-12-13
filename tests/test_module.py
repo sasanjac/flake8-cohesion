@@ -1,24 +1,19 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import collections
-import os
 import textwrap
-import unittest
 
 from flake8_cohesion import module
 
 
-class TestModule(unittest.TestCase):
-    def assertEmpty(self, iterable):
-        self.assertEqual(len(iterable), 0)
-
+class TestModule:
     def assertCountEqual(self, first, second):
         """
         Test whether two sequences contain the same elements.
 
         This exists in Python 3, but not Python 2.
         """
-        self.assertEqual(collections.Counter(list(first)), collections.Counter(list(second)))
+        assert collections.Counter(list(first)) == collections.Counter(list(second))
 
     def test_module_empty(self):
         python_string = textwrap.dedent("")
@@ -27,12 +22,12 @@ class TestModule(unittest.TestCase):
 
         result = python_module.classes()
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_module_class_empty(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             pass
         """
         )
@@ -42,27 +37,12 @@ class TestModule(unittest.TestCase):
         result = python_module.classes()
         expected = ["Cls"]
 
-        self.assertEqual(result, expected)
-
-    def test_module_class_empty_cohesion_percent(self):
-        python_string = textwrap.dedent(
-            """
-        class Cls(object):
-            pass
-        """
-        )
-
-        python_module = module.Module.from_string(python_string)
-
-        result = python_module.class_cohesion_percentage("Cls")
-        expected = 0.0
-
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_function_empty(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self):
                 pass
         """
@@ -73,12 +53,12 @@ class TestModule(unittest.TestCase):
         result = python_module.functions("Cls")
         expected = ["func"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_class_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 pass
@@ -90,12 +70,12 @@ class TestModule(unittest.TestCase):
         result = python_module.class_variables("Cls")
         expected = ["class_variable"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_function_variable(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             def func(self):
                 self.function_variable = 'foo'
         """
@@ -106,12 +86,12 @@ class TestModule(unittest.TestCase):
         result = python_module.function_variables("Cls", "func")
         expected = ["function_variable"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_filter_below_false(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -123,12 +103,12 @@ class TestModule(unittest.TestCase):
 
         result = python_module.classes()
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_module_filter_below_true(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -141,12 +121,12 @@ class TestModule(unittest.TestCase):
         result = python_module.classes()
         expected = ["Cls"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_filter_below_equal(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -159,12 +139,12 @@ class TestModule(unittest.TestCase):
         result = python_module.classes()
         expected = ["Cls"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_filter_above_false(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -176,12 +156,12 @@ class TestModule(unittest.TestCase):
 
         result = python_module.classes()
 
-        self.assertEmpty(result)
+        assert result == []
 
     def test_module_filter_above_true(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -194,12 +174,12 @@ class TestModule(unittest.TestCase):
         result = python_module.classes()
         expected = ["Cls"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_filter_above_equal(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -212,12 +192,12 @@ class TestModule(unittest.TestCase):
         result = python_module.classes()
         expected = ["Cls"]
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_class_cohesion_percentage(self):
         python_string = textwrap.dedent(
             """
-        class Cls(object):
+        class Cls:
             class_variable = 'foo'
             def func(self):
                 self.instance_variable = 'bar'
@@ -229,14 +209,62 @@ class TestModule(unittest.TestCase):
         result = python_module.class_cohesion_percentage("Cls")
         expected = 50
 
-        self.assertEqual(result, expected)
+        assert result == expected
+
+    def test_module_class_cohesion_percentage_empty(self):
+        python_string = textwrap.dedent(
+            """
+        class Cls:
+            pass
+        """
+        )
+
+        python_module = module.Module.from_string(python_string)
+
+        result = python_module.class_cohesion_percentage("Cls")
+        expected = 100
+
+        assert result == expected
+
+    def test_module_class_cohesion_percentage_empty_with_init(self):
+        python_string = textwrap.dedent(
+            """
+        class Cls:
+            def __init__(self):
+                self.a = 100
+        """
+        )
+
+        python_module = module.Module.from_string(python_string)
+
+        result = python_module.class_cohesion_percentage("Cls")
+        expected = 100
+
+        assert result == expected
+
+    def test_module_class_cohesion_percentage_empty_abstract(self):
+        python_string = textwrap.dedent(
+            """
+        class Cls(abc.ABC):
+            @abc.abstractmethod
+            def x(self) -> int:
+                ...
+        """
+        )
+
+        python_module = module.Module.from_string(python_string)
+
+        result = python_module.class_cohesion_percentage("Cls")
+        expected = 100
+
+        assert result == expected
 
     def test_module_class_lineno(self):
         python_string = textwrap.dedent(
             """
         def foo():
             pass
-        class Cls(object):
+        class Cls:
             pass
         """
         )
@@ -248,13 +276,13 @@ class TestModule(unittest.TestCase):
         # Don't forget the initial newline
         expected = 4
 
-        self.assertEqual(result, expected)
+        assert result == expected
 
     def test_module_class_col_offset(self):
         python_string = textwrap.dedent(
             """
         def foo():
-            class Cls(object):
+            class Cls:
                 pass
         """
         )
@@ -264,8 +292,4 @@ class TestModule(unittest.TestCase):
         result = python_module.structure["Cls"]["col_offset"]
         expected = 4
 
-        self.assertEqual(result, expected)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert result == expected

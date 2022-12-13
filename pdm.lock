@@ -952,8 +952,8 @@ dependencies = [
 
 [[package]]
 name = "isort"
-version = "5.10.1"
-requires_python = ">=3.6.1,<4.0"
+version = "5.11.1"
+requires_python = ">=3.7.0"
 summary = "A Python utility / library to sort Python imports."
 
 [[package]]
@@ -1340,7 +1340,7 @@ summary = "Tornado is a Python web framework and asynchronous networking library
 
 [[package]]
 name = "traitlets"
-version = "5.7.0"
+version = "5.7.1"
 requires_python = ">=3.7"
 summary = "Traitlets Python configuration system"
 
@@ -1374,7 +1374,7 @@ summary = "Module for decorators, wrappers and monkey patching."
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:25ac762b40b27d47cf5647a582e0bd160a8a506705891db196c7505b3b9b5025"
+content_hash = "sha256:375a4383a6cf30846d2baaa9180e7744bfb9e25c8f25a14c937022fb336462c2"
 
 [metadata.files]
 "appnope 0.1.3" = [
@@ -1928,9 +1928,9 @@ content_hash = "sha256:25ac762b40b27d47cf5647a582e0bd160a8a506705891db196c7505b3
     {url = "https://files.pythonhosted.org/packages/24/ef/af8899488ae62a35b0815aa955779db25e616defb0061a478203fc460f40/ipython-8.7.0-py3-none-any.whl", hash = "sha256:352042ddcb019f7c04e48171b4dd78e4c4bb67bf97030d170e154aac42b656d9"},
     {url = "https://files.pythonhosted.org/packages/82/2b/026af47da09998404f51064d328f5f1f68c78829082d2945be489343fde6/ipython-8.7.0.tar.gz", hash = "sha256:882899fe78d5417a0aa07f995db298fa28b58faeba2112d2e3a4c95fe14bb738"},
 ]
-"isort 5.10.1" = [
-    {url = "https://files.pythonhosted.org/packages/ab/e9/964cb0b2eedd80c92f5172f1f8ae0443781a9d461c1372a3ce5762489593/isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
-    {url = "https://files.pythonhosted.org/packages/b8/5b/f18e227df38b94b4ee30d2502fd531bebac23946a2497e5595067a561274/isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
+"isort 5.11.1" = [
+    {url = "https://files.pythonhosted.org/packages/5b/55/53df1bfaf98e08224f5880546ddd09fbc7271b316bf401de5d46aabcdcee/isort-5.11.1-py3-none-any.whl", hash = "sha256:bf02c95f1fe615ebbe13a619cfed1619ddfe8941274c9e3de3143adca406cb02"},
+    {url = "https://files.pythonhosted.org/packages/d7/1a/a43e2f3e6928fa210b03758a2a397898aa7381c480e3bfac121707d233cc/isort-5.11.1.tar.gz", hash = "sha256:7c5bd998504826b6f1e6f2f98b533976b066baba29b8bae83fdeefd0b89c6b70"},
 ]
 "jedi 0.18.2" = [
     {url = "https://files.pythonhosted.org/packages/15/02/afd43c5066de05f6b3188f3aa74136a3289e6c30e7a45f351546cab0928c/jedi-0.18.2.tar.gz", hash = "sha256:bae794c30d07f6d910d32a7048af09b5a39ed740918da923c6b780790ebac612"},
@@ -2366,9 +2366,9 @@ content_hash = "sha256:25ac762b40b27d47cf5647a582e0bd160a8a506705891db196c7505b3
     {url = "https://files.pythonhosted.org/packages/f9/51/6f63a166d9a3077be100cbb13dcbce434e5654daaaa7003b0a045b9f6edf/tornado-6.2-cp37-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:1d54d13ab8414ed44de07efecb97d4ef7c39f7438cf5e976ccd356bebb1b5fca"},
     {url = "https://files.pythonhosted.org/packages/fb/bd/074254a55bfc82d7a1886abbd803600ef01cbd76ee66bc30307b2724130b/tornado-6.2-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:20f638fd8cc85f3cbae3c732326e96addff0a15e22d80f049e00121651e82e72"},
 ]
-"traitlets 5.7.0" = [
-    {url = "https://files.pythonhosted.org/packages/a2/88/5b2a191dd0287b45b933405d951ebfc490a9dfee2494442e5977653ec43b/traitlets-5.7.0.tar.gz", hash = "sha256:bd0fca5c890a09bf66b33cce67ca14156b080429bc39c7ef26b075a4bd4f9fc3"},
-    {url = "https://files.pythonhosted.org/packages/da/31/a4740b0177838e5b1b50478cff4de09e5373ba8e5ed0998ae045b42218df/traitlets-5.7.0-py3-none-any.whl", hash = "sha256:61832ea7b7f910f5745e27e9bb269a181fd15af76027d99560299209d5b17c94"},
+"traitlets 5.7.1" = [
+    {url = "https://files.pythonhosted.org/packages/0b/db/9adbbb2bef9a43ecfa4f1cbcec1d662adade10262328a4b7ef65effc6341/traitlets-5.7.1.tar.gz", hash = "sha256:fde8f62c05204ead43c2c1b9389cfc85befa7f54acb5da28529d671175bb4108"},
+    {url = "https://files.pythonhosted.org/packages/cb/1e/7b8ae7bbc4c0d4b913cabb345c2ac98450bbd9cfe90ee2be275019037932/traitlets-5.7.1-py3-none-any.whl", hash = "sha256:57ba2ba951632eeab9388fa45f342a5402060a5cc9f0bb942f760fafb6641581"},
 ]
 "tryceratops 1.1.0" = [
     {url = "https://files.pythonhosted.org/packages/0a/90/b3a89ba966e6f01c1b1c32def4699055a0e4d49052b8f3c0b7a36ac381de/tryceratops-1.1.0.tar.gz", hash = "sha256:58e56b33eeb7a9cfd643957069bb1872ebe26c1eeac7abb1877c9535b7e473db"},
