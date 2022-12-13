@@ -3,8 +3,8 @@
     { name = "Matt Schwager", email = "schwag09@gmail.com" },
     { name = "Sasan Jacob Rasti", email = "sasan_jacob.rasti@tu-dresden.de" },
   ]
-  dependencies = ["flake8"]
-  description = "A flake8 plugin for measuring Python class cohesion."
+  dependencies = ["flake8>=3"]
+  description = "A flake8 extension for measuring Python class cohesion."
   license = { file = "LICENSE" }
   name = "flake8-cohesion"
   requires-python = ">=3.9"
@@ -103,7 +103,7 @@
 
 [tool.flake8]
   docstring-convention = "pep257"
-  exclude = [".tox", "__pypackages__", "build", "tests"]
+  exclude = [".tox", "__pypackages__", "build", "tests/*"]
   ignore = [
     "ANN002",
     "ANN003",
@@ -120,6 +120,7 @@
     "D202",
     "D203",
     "E402",
+    "FNE005",
     "FNE008",
     "W503",
   ]

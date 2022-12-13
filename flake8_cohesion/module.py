@@ -1,57 +1,89 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-from __future__ import division
+from __future__ import annotations
 
-import collections
 import operator
+from typing import TYPE_CHECKING
 
 from flake8_cohesion import parser
 
+if TYPE_CHECKING:
+    import ast
+    from collections.abc import Callable
+    from typing import TypedDict
 
-class Module(object):
-    def __init__(self, module_ast_node):
+    class FunctionDict(TypedDict):
+        variables: list[str]
+        bounded: bool
+        staticmethod: bool  # noqa: A003,VNE003
+        classmethod: bool  # noqa: A003,VNE003
+
+    class StructureDict(TypedDict):
+        cohesion: float | None
+        lineno: int
+        col_offset: int
+        variables: list[str]
+        functions: dict[str, FunctionDict]
+
+
+class Module:
+    def __init__(self, module_ast_node: ast.AST) -> None:
         self.structure = self._create_structure(module_ast_node)
 
         for class_name in self.structure.keys():
             self.class_cohesion_percentage(class_name)
 
-    def classes(self):
+    def classes(self) -> list[str]:
         return list(self.structure.keys())
 
-    def functions(self, class_name):
+    def functions(self, class_name: str) -> list[str]:
         return list(self.structure[class_name]["functions"].keys())
 
-    def class_variables(self, class_name):
+    def class_variables(self, class_name: str) -> list[str]:
         return self.structure[class_name]["variables"]
 
-    def function_variables(self, class_name, function_name):
+    def function_variables(self, class_name: str, function_name: str) -> list[str]:
         return self.structure[class_name]["functions"][function_name]["variables"]
 
     @classmethod
-    def from_string(cls, python_string):
+    def from_string(cls, python_string: str) -> Module:
         module_ast_node = parser.get_ast_node_from_string(python_string)
 
         return cls(module_ast_node)
 
-    def _filter(self, predicate=lambda class_name: True):
+    def filter_below(self, percentage: float) -> None:
+        def predicate(class_name: str) -> bool:
+            class_percentage = self.class_cohesion_percentage(class_name)
+            return operator.le(class_percentage, percentage)
+
+        self._filter(predicate)
+
+    def filter_above(self, percentage: float) -> None:
+        def predicate(class_name: str) -> bool:
+            class_percentage = self.class_cohesion_percentage(class_name)
+            return operator.ge(class_percentage, percentage)
+
+        self._filter(predicate)
+
+    def _filter(self, predicate: Callable[[str], bool] = lambda class_name: True) -> None:
         self.structure = {
             class_name: class_structure
             for class_name, class_structure in self.structure.items()
             if predicate(class_name)
         }
 
-    def class_cohesion_percentage(self, class_name):
-        if self.structure[class_name]["cohesion"] is not None:
-            return self.structure[class_name]["cohesion"]
+    def class_cohesion_percentage(self, class_name: str) -> float:
+        cohesion = self.structure[class_name]["cohesion"]
+        if cohesion is not None:
+            return cohesion
+
+        functions = {k: v for k, v in self.structure[class_name]["functions"].items() if len(v["variables"]) > 0}
 
         total_function_variable_count = sum(
-            len(function_structure["variables"])
-            for function_structure in self.structure[class_name]["functions"].values()
+            len(function_structure["variables"]) for function_structure in functions.values()
         )
 
-        total_class_variable_count = len(self.structure[class_name]["variables"]) * len(
-            self.structure[class_name]["functions"]
-        )
+        total_class_variable_count = len(self.structure[class_name]["variables"]) * len(functions)
 
         if total_class_variable_count != 0.0:
             class_percentage = round((total_function_variable_count / total_class_variable_count) * 100, 2)
@@ -62,25 +94,11 @@ class Module(object):
 
         return class_percentage
 
-    def filter_below(self, percentage):
-        def predicate(class_name):
-            class_percentage = self.class_cohesion_percentage(class_name)
-            return operator.le(class_percentage, percentage)
-
-        self._filter(predicate)
-
-    def filter_above(self, percentage):
-        def predicate(class_name):
-            class_percentage = self.class_cohesion_percentage(class_name)
-            return operator.ge(class_percentage, percentage)
-
-        self._filter(predicate)
-
     @staticmethod
-    def _create_structure(file_ast_node):
+    def _create_structure(file_ast_node: ast.AST) -> dict[str, StructureDict]:
         module_classes = parser.get_module_classes(file_ast_node)
 
-        result = collections.defaultdict(dict)
+        result = {}
 
         for module_class in module_classes:
             class_name = parser.get_object_name(module_class)
