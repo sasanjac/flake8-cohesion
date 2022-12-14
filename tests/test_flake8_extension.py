@@ -13,6 +13,7 @@ class TestFlake8Extension:
         ast_node = parser.get_ast_node_from_string(python_string)
         checker = extension.CohesionChecker(ast_node)
         checker._cohesion_below = 0.0
+        checker._strict = False
 
         result = list(checker.run())
 
@@ -23,8 +24,10 @@ class TestFlake8Extension:
             """
         class Cls:
             def a():
+                x = 1
                 print("a")
             def b():
+                self.b = 1
                 print("b")
             def c():
                 print("c")
@@ -36,6 +39,7 @@ class TestFlake8Extension:
         ast_node = parser.get_ast_node_from_string(python_string)
         checker = extension.CohesionChecker(ast_node)
         checker._cohesion_below = 0.0
+        checker._strict = False
 
         result = list(checker.run())
 
@@ -52,6 +56,7 @@ class TestFlake8Extension:
         ast_node = parser.get_ast_node_from_string(python_string)
         checker = extension.CohesionChecker(ast_node)
         checker._cohesion_below = 0.0
+        checker._strict = False
 
         result = list(checker.run())
 
@@ -69,6 +74,7 @@ class TestFlake8Extension:
         ast_node = parser.get_ast_node_from_string(python_string)
         checker = extension.CohesionChecker(ast_node)
         checker._cohesion_below = 50.0
+        checker._strict = False
 
         result = list(checker.run())
 
@@ -80,14 +86,18 @@ class TestFlake8Extension:
         class Cls:
             variable1 = 'foo'
             variable2 = 'bar'
+            variable3 = 'baz'
             def func(self):
                 self.variable2 = 'baz'
+            def func2(self):
+                self.variable3 = 'bazz'
         """
         )
 
         ast_node = parser.get_ast_node_from_string(python_string)
         checker = extension.CohesionChecker(ast_node)
         checker._cohesion_below = 75.0
+        checker._strict = False
 
         result = list(checker.run())
         expected = [
