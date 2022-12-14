@@ -6,6 +6,8 @@ import ast
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     NameDispatchKey = type[ast.AST]
 
 
@@ -34,12 +36,27 @@ def is_class_method_staticmethod(method: ast.FunctionDef) -> bool:
     return class_method_has_decorator(method, "staticmethod")
 
 
+def is_class_method_property(method: ast.FunctionDef) -> bool:
+    """Return whether a class method is a property."""
+    return class_method_has_decorator(method, "property")
+
+
+def is_class_method_abstractmethod(method: ast.FunctionDef) -> bool:
+    """Return whether a class method is a abstractmethod."""
+    return class_method_has_decorator(method, "abstractmethod")
+
+
+def is_class_method_passing(method: ast.FunctionDef) -> bool:
+    """Return whether a class method is a abstractmethod."""
+    return any(isinstance(child, ast.Pass) for child in ast.walk(method))
+
+
 def class_method_has_decorator(method: ast.FunctionDef, decorator: str) -> bool:
     """Return whether a class method has a specific decorator."""
     return decorator in [get_object_name(d) for d in method.decorator_list]
 
 
-def get_class_methods(cls: ast.ClassDef) -> list[ast.FunctionDef]:
+def get_class_methods(cls: ast.ClassDef) -> Sequence[ast.FunctionDef]:
     """Return methods associated with a given class."""
     return [node for node in cls.body if isinstance(node, ast.FunctionDef)]
 
@@ -49,14 +66,17 @@ def get_all_class_variable_names_used_in_method(method: ast.FunctionDef) -> set[
     return {get_object_name(variable) for variable in get_instance_variables(method)}
 
 
-def get_all_class_variable_names(cls: ast.ClassDef) -> set[str]:
+def get_all_class_variable_names(cls: ast.ClassDef, strict: bool) -> set[str]:
     """Return the names of all class and instance variables associated with a given class."""
-    return {get_object_name(variable) for variable in get_all_class_variables(cls)}
+    return {get_object_name(variable) for variable in get_all_class_variables(cls, strict)}
 
 
-def get_all_class_variables(cls: ast.ClassDef) -> list[ast.expr | ast.Attribute]:
+def get_all_class_variables(cls: ast.ClassDef, strict: bool) -> Sequence[ast.expr | ast.Attribute]:
     """Return class and instance variables associated with a given class."""
-    return get_class_variables(cls) + get_instance_variables(cls)
+    if strict:
+        return get_class_variables(cls) + get_instance_variables(cls)
+
+    return get_instance_variables(cls)
 
 
 def get_instance_variables(
@@ -101,7 +121,7 @@ def get_object_name(obj: ast.AST) -> str:
     return obj
 
 
-def get_module_classes(node: ast.AST) -> list[ast.ClassDef]:
+def get_module_classes(node: ast.AST) -> Sequence[ast.ClassDef]:
     """Return classes associated with a given module."""
     return [child for child in ast.walk(node) if isinstance(child, ast.ClassDef)]
 

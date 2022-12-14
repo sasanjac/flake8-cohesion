@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import ast
-import collections
 import textwrap
 
 import pytest
@@ -10,14 +9,6 @@ from flake8_cohesion import parser
 
 
 class TestParser:
-    def assertCountEqual(self, first, second):
-        """
-        Test whether two sequences contain the same elements.
-
-        This exists in Python 3, but not Python 2.
-        """
-        assert collections.Counter(list(first)) == collections.Counter(list(second))
-
     def test_valid_syntax(self):
         python_string = textwrap.dedent(
             """
@@ -66,7 +57,7 @@ class TestParser:
         result = [cls.name for cls in classes]
         expected = ["Cls"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_module_classes_multiple(self):
         python_string = textwrap.dedent(
@@ -83,7 +74,7 @@ class TestParser:
         result = [cls.name for cls in classes]
         expected = ["Cls1", "Cls2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_methods_empty(self):
         python_string = textwrap.dedent(
@@ -112,7 +103,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func1"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_methods_multiple(self):
         python_string = textwrap.dedent(
@@ -133,7 +124,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func1", "func2", "func3"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_methods_avoid_nested(self):
         python_string = textwrap.dedent(
@@ -151,7 +142,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func1"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_methods_avoid_lambda(self):
         python_string = textwrap.dedent(
@@ -168,7 +159,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func1"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_bound_method_is_bound(self):
         python_string = textwrap.dedent(
@@ -189,7 +180,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_is_class_method_staticmethod_is_staticmethod(self):
         python_string = textwrap.dedent(
@@ -211,7 +202,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_is_class_method_staticmethod_not_decorated(self):
         python_string = textwrap.dedent(
@@ -295,7 +286,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_is_class_method_classmethod_not_decorated(self):
         python_string = textwrap.dedent(
@@ -378,7 +369,7 @@ class TestParser:
         result = [method.name for method in methods]
         expected = ["func"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_bound_method_static(self):
         python_string = textwrap.dedent(
@@ -456,7 +447,7 @@ class TestParser:
         result = [instance_variable.attr for instance_variable in instance_variables]
         expected = ["attr"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_instance_variables_from_class_multiple(self):
         python_string = textwrap.dedent(
@@ -473,7 +464,7 @@ class TestParser:
         result = [instance_variable.attr for instance_variable in instance_variables]
         expected = ["attr1", "attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_instance_variables_from_class_multiple_same_line(self):
         python_string = textwrap.dedent(
@@ -489,7 +480,7 @@ class TestParser:
         result = [instance_variable.attr for instance_variable in instance_variables]
         expected = ["attr1", "attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_instance_variables_from_class_avoid_class_variable(self):
         python_string = textwrap.dedent(
@@ -519,7 +510,7 @@ class TestParser:
         result = [class_variable.id for class_variable in class_variables]
         expected = ["attr"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_variables_from_class_multiple_targets(self):
         python_string = textwrap.dedent(
@@ -535,7 +526,7 @@ class TestParser:
         result = [class_variable.id for class_variable in class_variables]
         expected = ["attr1", "attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_class_variables_from_class_avoid_instance_variable(self):
         python_string = textwrap.dedent(
@@ -565,10 +556,10 @@ class TestParser:
 
         node = parser.get_ast_node_from_string(python_string)
         classes = parser.get_module_classes(node)
-        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls)]
+        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls, strict=True)]
         expected = ["attr1", "attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_all_class_variable_names_just_instance(self):
         python_string = textwrap.dedent(
@@ -581,10 +572,10 @@ class TestParser:
 
         node = parser.get_ast_node_from_string(python_string)
         classes = parser.get_module_classes(node)
-        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls)]
+        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls, strict=True)]
         expected = ["attr"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_all_class_variable_names_just_class(self):
         python_string = textwrap.dedent(
@@ -598,10 +589,10 @@ class TestParser:
 
         node = parser.get_ast_node_from_string(python_string)
         classes = parser.get_module_classes(node)
-        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls)]
+        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls, strict=True)]
         expected = ["attr"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_all_class_variable_names_ensure_no_method_names(self):
         python_string = textwrap.dedent(
@@ -615,11 +606,11 @@ class TestParser:
 
         node = parser.get_ast_node_from_string(python_string)
         classes = parser.get_module_classes(node)
-        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls)]
+        result = [name for cls in classes for name in parser.get_all_class_variable_names(cls, strict=True)]
         # Ensure 'func' isn't in the list of included names
         expected = ["attr"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_get_all_class_variable_names_used_in_method(self):
         python_string = textwrap.dedent(
@@ -638,7 +629,7 @@ class TestParser:
         ]
         expected = ["attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_ensure_method_call_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
@@ -661,7 +652,7 @@ class TestParser:
         # Ensure 'func1' isn't in the list of included names
         expected = ["attr1", "attr2"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_ensure_decorator_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
@@ -681,7 +672,7 @@ class TestParser:
         # Ensure 'decorator' isn't in the list of included names
         expected = ["attr1"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)
 
     def test_ensure_unbound_attribute_not_considered_instance_variable(self):
         python_string = textwrap.dedent(
@@ -701,4 +692,4 @@ class TestParser:
         # Ensure 'attr2' isn't in the list of included names
         expected = ["attr1"]
 
-        self.assertCountEqual(result, expected)
+        assert set(result) == set(expected)

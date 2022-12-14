@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
     class Options(Protocol):
         cohesion_below: float
+        cohesion_strict: bool
         ...
 
 
@@ -28,16 +29,22 @@ class CohesionChecker:
 
     def __init__(self, tree: ast.AST) -> None:
         self._tree = tree
-        self._cohesion_below = 50.0
 
     @classmethod
     def add_options(cls: type[CohesionChecker], parser: manager.OptionManager) -> None:
         flag = "--cohesion-below"
         kwargs = {
             "action": "store",
-            "type": "float",
+            "type": float,
             "default": 50.0,
             "help": "only show cohesion results with this percentage or lower",
+            "parse_from_config": "True",
+        }
+        parser.add_option(flag, **kwargs)
+        flag = "--cohesion-strict"
+        kwargs = {
+            "action": "store_true",
+            "help": "count variables from class definition",
             "parse_from_config": "True",
         }
         parser.add_option(flag, **kwargs)
@@ -45,12 +52,13 @@ class CohesionChecker:
     @classmethod
     def parse_options(cls: type[CohesionChecker], options: Options) -> None:
         cls._cohesion_below = options.cohesion_below
+        cls._strict = options.cohesion_strict
 
     def run(self) -> Generator[tuple[int, int, str, type[CohesionChecker]], None, None]:  # noqa: TAE002
-        file_module = flake8_cohesion.module.Module(self._tree)
-        file_module.filter_below(float(self.cohesion_below))
+        file_module = flake8_cohesion.module.Module(self._tree, self._strict)
+        file_module.filter_below(float(self._cohesion_below))
 
-        for class_name in file_module.classes():
+        for class_name in file_module.classes:
             cohesion_percentage = file_module.class_cohesion_percentage(class_name)
             yield (  # noqa: TMN002
                 file_module.structure[class_name]["lineno"],
