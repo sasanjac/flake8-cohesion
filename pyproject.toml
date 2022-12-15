@@ -139,7 +139,7 @@
   tag_format = "$version"
   version = "0.0.1"
   version_files = [
-    "flake8_cohesion.__init__.py:__version__",
+    "flake8_cohesion/__init__.py:__version__",
     "pyproject.toml:version",
   ]
 
