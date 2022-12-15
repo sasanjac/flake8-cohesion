@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import ast
+import itertools
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable
 
     NameDispatchKey = type[ast.AST]
 
@@ -56,7 +57,7 @@ def class_method_has_decorator(method: ast.FunctionDef, decorator: str) -> bool:
     return decorator in [get_object_name(d) for d in method.decorator_list]
 
 
-def get_class_methods(cls: ast.ClassDef) -> Sequence[ast.FunctionDef]:
+def get_class_methods(cls: ast.ClassDef) -> Iterable[ast.FunctionDef]:
     """Return methods associated with a given class."""
     return [node for node in cls.body if isinstance(node, ast.FunctionDef)]
 
@@ -71,10 +72,14 @@ def get_all_class_variable_names(cls: ast.ClassDef, strict: bool) -> set[str]:
     return {get_object_name(variable) for variable in get_all_class_variables(cls, strict)}
 
 
-def get_all_class_variables(cls: ast.ClassDef, strict: bool) -> Sequence[ast.expr | ast.Attribute]:
+def get_all_class_variables(cls: ast.ClassDef, strict: bool) -> Iterable[ast.expr | ast.Attribute]:
     """Return class and instance variables associated with a given class."""
     if strict:
-        return get_class_variables(cls) + get_instance_variables(cls)
+        items: Iterable[Iterable[ast.Attribute | ast.expr]] = [
+            get_class_variables(cls),
+            get_instance_variables(cls),
+        ]
+        return itertools.chain.from_iterable(items)
 
     return get_instance_variables(cls)
 
@@ -82,7 +87,7 @@ def get_all_class_variables(cls: ast.ClassDef, strict: bool) -> Sequence[ast.exp
 def get_instance_variables(
     node: ast.AST,
     bound_name_classifier: str = BOUND_METHOD_ARGUMENT_NAME,
-) -> list[ast.Attribute]:
+) -> Iterable[ast.Attribute]:
     """Return instance variables used in an AST node."""
     node_attributes = [
         child
@@ -98,7 +103,7 @@ def get_attribute_name_id(attr: ast.Attribute) -> str | None:
     return attr.value.id if isinstance(attr.value, ast.Name) else None
 
 
-def get_class_variables(cls: ast.ClassDef) -> list[ast.expr]:
+def get_class_variables(cls: ast.ClassDef) -> Iterable[ast.expr]:
     """Return class variables associated with a given class."""
     return [target for node in cls.body if isinstance(node, ast.Assign) for target in node.targets]
 
@@ -121,7 +126,7 @@ def get_object_name(obj: ast.AST) -> str:
     return obj
 
 
-def get_module_classes(node: ast.AST) -> Sequence[ast.ClassDef]:
+def get_module_classes(node: ast.AST) -> list[ast.ClassDef]:
     """Return classes associated with a given module."""
     return [child for child in ast.walk(node) if isinstance(child, ast.ClassDef)]
 
