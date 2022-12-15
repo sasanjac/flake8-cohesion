@@ -117,17 +117,16 @@ class Module:
     def _create_structure(file_ast_node: ast.AST, strict: bool) -> dict[str, StructureDict]:
         module_classes = parser.get_module_classes(file_ast_node)
 
-        result = {}
+        result: dict[str, StructureDict] = {}
 
         for module_class in module_classes:
             class_name = parser.get_object_name(module_class)
-            result[class_name] = {}
 
             class_variable_names = list(parser.get_all_class_variable_names(module_class, strict))
 
             class_methods = parser.get_class_methods(module_class)
 
-            class_method_name_to_method = {method.name: method for method in class_methods}
+            class_method_name_to_method = {str(method.name): method for method in class_methods}
 
             class_method_name_to_variable_names = {
                 method_name: list(parser.get_all_class_variable_names_used_in_method(method))
@@ -164,11 +163,11 @@ class Module:
                 for method_name, method in class_method_name_to_method.items()
             }
 
-            result[class_name]["cohesion"] = None
-            result[class_name]["lineno"] = module_class.lineno
-            result[class_name]["col_offset"] = module_class.col_offset
-            result[class_name]["variables"] = class_variable_names
-            result[class_name]["functions"] = {
+            cohesion = None
+            lineno = module_class.lineno
+            col_offset = module_class.col_offset
+            variables = class_variable_names
+            functions: dict[str, FunctionDict] = {
                 method_name: {
                     "variables": class_method_name_to_variable_names[method_name],
                     "bounded": class_method_name_to_boundedness[method_name],
@@ -179,6 +178,13 @@ class Module:
                     "passing": class_method_name_to_passing[method_name],
                 }
                 for method_name in class_method_name_to_method.keys()
+            }
+            result[class_name] = {
+                "cohesion": cohesion,
+                "lineno": lineno,
+                "col_offset": col_offset,
+                "variables": variables,
+                "functions": functions,
             }
 
         return result

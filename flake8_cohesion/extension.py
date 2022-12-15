@@ -26,6 +26,8 @@ class CohesionChecker:
 
     _code = "H601"
     _error_tmpl = "H601 class has low ({0:.2f}%) cohesion"
+    _cohesion_below = 50.0
+    _strict = False
 
     def __init__(self, tree: ast.AST) -> None:
         self._tree = tree
