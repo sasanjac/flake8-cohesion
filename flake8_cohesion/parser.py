@@ -47,9 +47,10 @@ def is_class_method_abstractmethod(method: ast.FunctionDef) -> bool:
     return class_method_has_decorator(method, "abstractmethod")
 
 
-def is_class_method_passing(method: ast.FunctionDef) -> bool:
-    """Return whether a class method is a abstractmethod."""
-    return any(isinstance(child, ast.Pass) for child in ast.walk(method))
+def is_class_method_only_passing(method: ast.FunctionDef) -> bool:
+    """Return whether a class method contains only a pass statement."""
+    allowed_ast_types = (ast.FunctionDef, ast.arguments, ast.Pass, ast.arg)
+    return all(isinstance(child, allowed_ast_types) for child in ast.walk(method))
 
 
 def class_method_has_decorator(method: ast.FunctionDef, decorator: str) -> bool:
