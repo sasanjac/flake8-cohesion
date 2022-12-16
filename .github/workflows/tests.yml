@@ -40,8 +40,12 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     name: Run tests (matrix)
-    needs: tests
+    needs: [tests]
     steps:
-      - name: Check test matrix status
-        if: ${{ needs.tests.result != 'success' }}
-        run: exit 1
+      - run: |
+          result="${{ needs.tests.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
