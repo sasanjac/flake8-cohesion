@@ -158,8 +158,8 @@ class Module:
                 for method_name, method in class_method_name_to_method.items()
             }
 
-            class_method_name_to_passing = {
-                method_name: parser.is_class_method_passing(method)
+            class_method_name_to_only_passing = {
+                method_name: parser.is_class_method_only_passing(method)
                 for method_name, method in class_method_name_to_method.items()
             }
 
@@ -175,7 +175,7 @@ class Module:
                     "classmethod": class_method_name_to_classmethodness[method_name],
                     "property": class_method_name_to_propertyness[method_name],
                     "abstractmethod": class_method_name_to_abstractmethodness[method_name],
-                    "passing": class_method_name_to_passing[method_name],
+                    "passing": class_method_name_to_only_passing[method_name],
                 }
                 for method_name in class_method_name_to_method.keys()
             }

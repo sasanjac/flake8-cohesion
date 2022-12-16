@@ -693,3 +693,38 @@ class TestParser:
         expected = ["attr1"]
 
         assert set(result) == set(expected)
+
+    def test_only_passing_ok(self):
+        python_string = textwrap.dedent(
+            """
+        class Cls:
+            def func(self):
+                self.attr1 = 4
+                pass
+        """
+        )
+
+        node = parser.get_ast_node_from_string(python_string)
+        class_methods = [method for cls in parser.get_module_classes(node) for method in parser.get_class_methods(cls)]
+        result = [parser.is_class_method_only_passing(method) for method in class_methods]
+        # Ensure 'func' is passing
+        expected = [False]
+
+        assert set(result) == set(expected)
+
+    def test_only_passing(self):
+        python_string = textwrap.dedent(
+            """
+        class Cls:
+            def func(self):
+                pass
+        """
+        )
+
+        node = parser.get_ast_node_from_string(python_string)
+        class_methods = [method for cls in parser.get_module_classes(node) for method in parser.get_class_methods(cls)]
+        result = [parser.is_class_method_only_passing(method) for method in class_methods]
+        # Ensure 'func' is passing
+        expected = [True]
+
+        assert set(result) == set(expected)
