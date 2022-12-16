@@ -1,3 +1,13 @@
+## 1.0.0 (2022-12-16)
+
+### BREAKING CHANGE
+
+- release
+
+### Fix
+
+- discard only methods that contain only pass statements (contributors: @sasanjac)
+
 ## 0.0.2 (2022-12-15)
 
 ### Fix
