@@ -19,13 +19,11 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10"]
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v3
         with:
@@ -34,9 +32,16 @@ jobs:
           architecture: x64
           prerelease: true
           enable-pep582: true
-
       - name: Install dependencies
         run: pdm install
-
       - name: Unit test using pytest
         run: pdm run pytest --cov=flake8_cohesion tests/ -n 2
+  testall:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Run tests (matrix)
+    needs: tests
+    steps:
+      - name: Check test matrix status
+        if: ${{ needs.tests.result != 'success' }}
+        run: exit 1
