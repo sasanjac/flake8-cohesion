@@ -99,9 +99,6 @@ class Module:
             and (v["passing"] is False)
         }
 
-        if len(relevant_functions) == 0:
-            return 100.0
-
         total_function_variable_count = sum(
             len({e.strip("_") for e in function_structure["variables"]})
             for function_structure in relevant_functions.values()
@@ -110,6 +107,9 @@ class Module:
         total_class_variable_count = len({e.strip("_") for e in self.structure[class_name]["variables"]}) * len(
             relevant_functions
         )
+
+        if total_class_variable_count == 0:
+            return 100.0
 
         return round((total_function_variable_count / total_class_variable_count) * 100, 2)
 
