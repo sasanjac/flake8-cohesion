@@ -1,3 +1,9 @@
+## 1.0.1 (2022-12-19)
+
+### Fix
+
+- division by zero (contributors: @sasanjac)
+
 ## 1.0.0 (2022-12-16)
 
 ### BREAKING CHANGE

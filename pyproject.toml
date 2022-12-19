@@ -8,7 +8,7 @@
   license = { file = "LICENSE" }
   name = "flake8-cohesion"
   requires-python = ">=3.9"
-  version = "1.0.0"
+  version = "1.0.1"
 
   [project.urls]
     homepage = "https://github.com/sasanjac/flake8-cohesion"
@@ -137,7 +137,7 @@
 [tool.commitizen]
   name = "cz_conventional_commits"
   tag_format = "$version"
-  version = "1.0.0"
+  version = "1.0.1"
   version_files = [
     "flake8_cohesion/__init__.py:__version__",
     "pyproject.toml:version",
