@@ -1,6 +1,6 @@
 # Cohesion
 
-flake8-cohesion is a flake8 extension for measuring Python class cohesion.
+`flake8-cohesion` is a [`flake8`](https://github.com/PyCQA/flake8) extension for measuring Python class cohesion.
 
 > In computer programming, cohesion refers to the degree to which the elements
 > of a module belong together. Thus, cohesion measures the strength of
@@ -22,9 +22,9 @@ Some of the advantages of high cohesion, also by Wikipedia:
   the component they need more easily among the cohesive set of operations
   provided by the module.
 
-## Differences to `cohesion`
+## Differences to the `cohesion` package
 
-`flake8-cohesion` is a fork of `cohesion`. However, because it seems abandoned, I decided to change the calculations to match a more regular workflow when coding in `python`:
+`flake8-cohesion` is a fork of [`cohesion`](https://github.com/mschwager/cohesion). However, because it seems abandoned, I decided to create a new package and change the calculations to match a more regular workflow when coding in `python`:
 
 - The following method types are not considered when calculating class cohesion:
   - `abstractmethods`
