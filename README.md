@@ -67,12 +67,12 @@ python -m flake8
 
 | option                | default value | description                                                    |
 | --------------------- | ------------- | -------------------------------------------------------------- |
-| `cohesion-percentage` | `50.0`        | upper percentage threshold below which a violation is reported |
+| `cohesion-below`      | `50.0`        | upper percentage threshold below which a violation is reported |
 | `cohesion-strict`     | `false`       | includes variables of class defintion in cohesion calculation  |
 
 example flake8 configuration file:
 ```toml
 [flake8]
-cohesion-percentage = 70.0
+cohesion-below = 70.0
 cohesion-strict = true
 ```
