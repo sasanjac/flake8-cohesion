@@ -26,6 +26,9 @@ jobs:
           prerelease: true
           enable-pep582: true
 
+      - name: Check lockfile
+        run: pdm lock --check
+
       - name: Installing dependencies
         run: pdm install
 
